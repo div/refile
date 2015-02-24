@@ -241,6 +241,7 @@ module Refile
       else
         attacher = object.send(:"#{name}_attacher")
         attacher.get
+      end
       return unless file
 
       host ||= Refile.host
