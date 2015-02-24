@@ -79,6 +79,24 @@ module Refile
       end
     end
 
+    def url(*args, prefix: nil, filename: nil, format: nil, host: nil)
+      host ||= Refile.host
+      prefix ||= Refile.mount_point
+      filename ||= attacher.basename || name.to_s
+      format ||= attacher.extension
+
+      backend_name = Refile.backends.key(backend)
+
+      filename = Rack::Utils.escape(filename)
+      filename << "." << format.to_s if format
+
+      uri = URI(host.to_s)
+      base_path = ::File.join("", backend_name, *args.map(&:to_s), id.to_s, filename)
+      uri.path = ::File.join("", *prefix, token(base_path), base_path)
+
+      uri.to_s
+    end
+
   private
 
     def io
