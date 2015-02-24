@@ -236,13 +236,25 @@ module Refile
     # @param [String, nil] prefix          Adds a prefix to the URL if the application is not mounted at root
     # @return [String, nil]                The generated URL
     def attachment_url(object, name, *args, prefix: nil, filename: nil, format: nil, host: nil)
-      return unless file = file_for(object, name)
-      file.url(*args, prefix: nil, filename: nil, format: nil, host: nil)
-    end
-
-    def file_for(object, name)
       attacher = object.send(:"#{name}_attacher")
       file = attacher.get
+      return unless file
+
+      host ||= Refile.host
+      prefix ||= Refile.mount_point
+      filename ||= attacher.basename || name.to_s
+      format ||= attacher.extension
+
+      backend_name = Refile.backends.key(file.backend)
+
+      filename = Rack::Utils.escape(filename)
+      filename << "." << format.to_s if format
+
+      uri = URI(host.to_s)
+      base_path = ::File.join("", backend_name, *args.map(&:to_s), file.id.to_s, filename)
+      uri.path = ::File.join("", *prefix, token(base_path), base_path)
+
+      uri.to_s
     end
 
     # Generate a signature for a given path concatenated with the configured secret token.
