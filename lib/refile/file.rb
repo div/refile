@@ -74,6 +74,13 @@ module Refile
       end
     end
 
+    # Rewind to beginning of file.
+    #
+    # @return [nil]
+    def rewind
+      @io = nil
+    end
+
   private
 
     def io
