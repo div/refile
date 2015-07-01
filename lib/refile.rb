@@ -253,7 +253,7 @@ module Refile
 
       uri = URI(host.to_s)
       base_path = ::File.join("", backend_name, *args.map(&:to_s), file.id.to_s, filename)
-      uri.path = ::File.join("", *prefix, token(base_path), base_path)
+      uri.path += ::File.join("", *prefix, token(base_path), base_path)
 
       uri.to_s
     end
